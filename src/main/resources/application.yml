@@ -18,6 +18,9 @@ spring:
     username: root
     password: Yuanyulou789!
     driver-class-name: com.mysql.jdbc.Driver
+  data:
+    elasticsearch:
+      cluster-nodes: xx.67.xxx.xx:9300
   servlet:
     multipart:
       max-file-size: 10MB

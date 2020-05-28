@@ -83,4 +83,18 @@ public class TestController {
         return "";
     }
 
+    @GetMapping("/saveToEs")
+    @ResponseBody
+    public String saveEs(){
+        hotelService.insertHotelInfoToElasticSearch();
+        return "";
+    }
+
+    @GetMapping("/search")
+    @ResponseBody
+    public String saveEs(@RequestParam String keyword){
+        hotelService.searchByKeyword(keyword);
+        return "";
+    }
+
 }

@@ -1,5 +1,6 @@
 package cn.itlou.peisong.mapper;
 
+import cn.itlou.peisong.dto.HotelESDTO;
 import cn.itlou.peisong.dto.HotelImportDTO;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
@@ -33,5 +34,8 @@ public interface HotelMapper {
             "order by field(id, <foreach collection='list' item='item' separator=','>" +
             "#{item}</foreach>)</script>")
     List<HotelImportDTO> selectByIdList(List<String> list);
+
+    @Select("select id, name, address, concat(x(graph_location), ',', y(graph_location)) location from t_hotel_info")
+    List<HotelESDTO> selectAll();
 
 }
