@@ -35,7 +35,8 @@ public interface HotelMapper {
             "#{item}</foreach>)</script>")
     List<HotelImportDTO> selectByIdList(List<String> list);
 
-    @Select("select id, name, address, concat(x(graph_location), ',', y(graph_location)) location from t_hotel_info")
+//    @Select("select id, name, address, concat(y(graph_location), ',', x(graph_location)) location from t_hotel_info")
+    @Select("select id, name, address, y(graph_location) y, x(graph_location) x from t_hotel_info")
     List<HotelESDTO> selectAll();
 
 }

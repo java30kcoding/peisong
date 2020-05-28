@@ -1,9 +1,7 @@
 package cn.itlou.peisong.dto;
 
 import lombok.Data;
-import org.springframework.data.elasticsearch.annotations.CompletionField;
-import org.springframework.data.elasticsearch.annotations.Document;
-import org.springframework.data.elasticsearch.annotations.GeoPointField;
+import org.springframework.data.elasticsearch.annotations.*;
 
 import java.io.Serializable;
 
@@ -22,6 +20,8 @@ public class HotelESDTO implements Serializable {
     private String name;
     private String address;
     @GeoPointField
-    private String location;
+    private GeoPoint location;
+    private Double x;
+    private Double y;
 
 }

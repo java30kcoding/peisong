@@ -1,5 +1,6 @@
 package cn.itlou.peisong.service;
 
+import cn.itlou.peisong.dto.GeoPoint;
 import cn.itlou.peisong.dto.HotelESDTO;
 import cn.itlou.peisong.dto.HotelImportDTO;
 import cn.itlou.peisong.mapper.HotelMapper;
@@ -7,15 +8,16 @@ import cn.itlou.peisong.utils.RedisUtils;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.lucene.util.QueryBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.common.unit.DistanceUnit;
 import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.search.MatchQuery;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
-import org.elasticsearch.search.sort.SortBuilder;
+import org.elasticsearch.search.sort.GeoDistanceSortBuilder;
+import org.elasticsearch.search.sort.SortBuilders;
+import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 import org.springframework.data.elasticsearch.core.query.IndexQuery;
 import org.springframework.stereotype.Service;
@@ -54,6 +56,9 @@ public class HotelService {
         List<HotelESDTO> list = hotelMapper.selectAll();
 //        SampleEntity a = new SampleEntity();
 //        hotelEsRepository.save(list);
+        for (HotelESDTO hotelESDTO : list) {
+            hotelESDTO.setLocation(new GeoPoint(hotelESDTO.getY(), hotelESDTO.getX()));
+        }
         int counter = 0;
         try {
             List<IndexQuery> queries = Lists.newArrayList();
@@ -97,8 +102,14 @@ public class HotelService {
     public List<HotelESDTO> searchByKeyword(String keyword){
         Client client =elasticsearchTemplate.getClient();
         MatchQueryBuilder query = QueryBuilders.matchQuery("name", keyword);
+//        GeoPoint geo = new GeoPoint(24.720346, 118.147428);
+        GeoDistanceSortBuilder sortBuilder =
+                SortBuilders.geoDistanceSort("location", 24.720346, 118.147428)
+//                        .point(24.720346, 118.147428)
+                        .unit(DistanceUnit.METERS)
+                        .order(SortOrder.ASC);//排序方式
         SearchResponse response = client.prepareSearch("hotel_info").setQuery(query).
-                setFrom(0).setSize(10).execute().actionGet();
+                setFrom(0).setSize(10).addSort(sortBuilder).execute().actionGet();
         SearchHits shs = response.getHits();
         for (SearchHit hit : shs) {
             System.out.println("分数:"
