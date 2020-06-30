@@ -6,8 +6,8 @@ logging:
 wx:
   miniapp:
     configs:
-      - appid: wxeb9fb7d2851bee96
-        secret: f3d148e5baecf1945ad7b29495184d59
+      - appid: ..
+        secret: ..
         #        token: #微信小程序消息服务器配置的token
         #        aesKey: #微信小程序消息服务器配置的EncodingAESKey
         msgDataFormat: JSON
@@ -20,15 +20,15 @@ spring:
     driver-class-name: com.mysql.jdbc.Driver
   data:
     elasticsearch:
-      cluster-nodes: xx.67.xxx.xx:9300
+      cluster-nodes: ........:9300
   servlet:
     multipart:
       max-file-size: 10MB
       max-request-size: 100MB
   redis:
-    host: xx.67.xxx.xx
+    host: ..........
     port: 6379
-    password: 4BCq661sfd6n&Ru
+    password:
     timeout: 1000
     jedis:
       pool:

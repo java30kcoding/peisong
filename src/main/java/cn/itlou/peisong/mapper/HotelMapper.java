@@ -2,6 +2,7 @@ package cn.itlou.peisong.mapper;
 
 import cn.itlou.peisong.dto.HotelESDTO;
 import cn.itlou.peisong.dto.HotelImportDTO;
+import cn.itlou.peisong.dto.HotelResDTO;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -27,7 +28,7 @@ public interface HotelMapper {
     Integer insertHotelInfo(List<HotelImportDTO> list);
 
 //    @Select("select name, address from t_hotel_info where id in()")
-    @Select("<script> select name, address from t_hotel_info where id in(" +
+    @Select("<script> select id, name, address from t_hotel_info where id in(" +
             "<foreach collection='list' item='item' separator=','> " +
             "#{item}" +
             "</foreach>)" +
@@ -38,5 +39,8 @@ public interface HotelMapper {
 //    @Select("select id, name, address, concat(y(graph_location), ',', x(graph_location)) location from t_hotel_info")
     @Select("select id, name, address, y(graph_location) y, x(graph_location) x from t_hotel_info")
     List<HotelESDTO> selectAll();
+
+    @Select("select id, name, address from t_hotel_info where id = #{id}")
+    public HotelResDTO getHotelInfoById(long id);
 
 }

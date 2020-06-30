@@ -3,9 +3,11 @@ package cn.itlou.peisong.service;
 import cn.itlou.peisong.dto.GeoPoint;
 import cn.itlou.peisong.dto.HotelESDTO;
 import cn.itlou.peisong.dto.HotelImportDTO;
+import cn.itlou.peisong.dto.HotelResDTO;
 import cn.itlou.peisong.mapper.HotelMapper;
 import cn.itlou.peisong.utils.RedisUtils;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.action.search.SearchResponse;
@@ -18,6 +20,7 @@ import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.sort.GeoDistanceSortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
+import org.springframework.beans.BeanUtils;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 import org.springframework.data.elasticsearch.core.query.IndexQuery;
 import org.springframework.stereotype.Service;
@@ -89,42 +92,54 @@ public class HotelService {
         }
     }
 
-    public String getNearHotelInfo(){
-        List<String> ids = redisUtils.getDistanceByCoordinate(118.03911129898074, 24.491372834479673, 5);
+    public List<HotelResDTO> getNearHotelInfo(double x, double y){
+        List<String> ids = redisUtils.getDistanceByCoordinate(x, y, 5);
+//        118.03911129898074, 24.491372834479673
+        //如果用户不在厦门或未授权则无法搜索附近的酒店
+        if (ids == null || ids.size() == 0) {
+            for (int i = 1; i < 11; i++) {
+                ids.add(i + "");
+            }
+        }
         List<HotelImportDTO> hotelImportDTOS = hotelMapper.selectByIdList(ids);
         for (HotelImportDTO hotelImportDTO : hotelImportDTOS) {
             System.out.println(hotelImportDTO.getName());
             System.out.println(hotelImportDTO.getAddress().replace("福建省厦门市", ""));
         }
-        return "";
+        List<HotelResDTO> resDTOS = Lists.newArrayList();
+        hotelImportDTOS.forEach(hotelInfo -> {
+            HotelResDTO hotelResDTO = new HotelResDTO();
+            BeanUtils.copyProperties(hotelInfo, hotelResDTO);
+            resDTOS.add(hotelResDTO);
+        });
+        return resDTOS;
     }
 
-    public List<HotelESDTO> searchByKeyword(String keyword){
+    public List<HotelResDTO> searchByKeyword(String keyword){
         Client client =elasticsearchTemplate.getClient();
         MatchQueryBuilder query = QueryBuilders.matchQuery("name", keyword);
 //        GeoPoint geo = new GeoPoint(24.720346, 118.147428);
-        GeoDistanceSortBuilder sortBuilder =
-                SortBuilders.geoDistanceSort("location", 24.720346, 118.147428)
-//                        .point(24.720346, 118.147428)
-                        .unit(DistanceUnit.METERS)
-                        .order(SortOrder.ASC);//排序方式
+//        GeoDistanceSortBuilder sortBuilder =
+//                SortBuilders.geoDistanceSort("location", 24.720346, 118.147428)
+//                        .unit(DistanceUnit.METERS)
+//                        .order(SortOrder.ASC);//排序方式
         SearchResponse response = client.prepareSearch("hotel_info").setQuery(query).
-                setFrom(0).setSize(10).addSort(sortBuilder).execute().actionGet();
+                setFrom(0).setSize(10).execute().actionGet();
         SearchHits shs = response.getHits();
+        List<HotelResDTO> resDTOS = Lists.newArrayList();
         for (SearchHit hit : shs) {
-            System.out.println("分数:"
-
-                    + hit.getScore()
-
-                    + ",ID:"
-
-                    + hit.getId()
-
-                    + ", 酒店:"
-
-                    + hit.getSourceAsString());
+            JSONObject hotelInfoJson = JSON.parseObject(hit.getSourceAsString());
+            HotelResDTO hotelResDTO = new HotelResDTO();
+            hotelResDTO.setId(hotelInfoJson.getString("id"));
+            hotelResDTO.setName(hotelInfoJson.getString("name"));
+            hotelResDTO.setAddress(hotelInfoJson.getString("address"));
+            resDTOS.add(hotelResDTO);
         }
-        return null;
+        return resDTOS;
+    }
+
+    public HotelResDTO getHotelInfoById(long id) {
+        return hotelMapper.getHotelInfoById(id);
     }
 
 }

@@ -76,12 +76,12 @@ public class TestController {
         return result.toJSONString();
     }
 
-    @GetMapping("/getDis")
-    @ResponseBody
-    public String getNearHotel(){
-        hotelService.getNearHotelInfo();
-        return "";
-    }
+//    @GetMapping("/getDis")
+//    @ResponseBody
+//    public String getNearHotel(){
+//        hotelService.getNearHotelInfo();
+//        return "";
+//    }
 
     @GetMapping("/saveToEs")
     @ResponseBody
