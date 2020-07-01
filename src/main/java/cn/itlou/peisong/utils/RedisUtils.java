@@ -76,6 +76,45 @@ public class RedisUtils {
     }
 
     /**
+     * 存储openid和sessionKey
+     *
+     * @param openid
+     * @param sessionKey
+     * @return
+     */
+    public String setSessionKey(String openid, String sessionKey){
+        Jedis jedis = null;
+        try {
+            jedis = jedisPool.getResource();
+            return jedis.set(openid, sessionKey);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        } finally {
+            returnResource(jedisPool, jedis);
+        }
+        return null;
+    }
+
+    /**
+     * 根据openid获取sessionKey
+     *
+     * @param openid
+     * @return
+     */
+    public String getSessionKey(String openid){
+        Jedis jedis = null;
+        try {
+            jedis = jedisPool.getResource();
+            return jedis.get(openid);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        } finally {
+            returnResource(jedisPool, jedis);
+        }
+        return null;
+    }
+
+    /**
      * 返还到连接池
      *
      * @param jedisPool

@@ -68,7 +68,7 @@
 		<dependency>
 			<groupId>com.github.binarywang</groupId>
 			<artifactId>weixin-java-miniapp</artifactId>
-			<version>3.7.0</version>
+			<version>3.7.8.B</version>
 		</dependency>
 		<dependency>
 			<groupId>com.alibaba</groupId>
